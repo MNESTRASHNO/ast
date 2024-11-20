@@ -6,9 +6,6 @@ import app.modules.optimizations as modules_optimizations
 
 
 def optimizer(my_ast, verbose=True):
-    """
-    Главная функция оптимизации.
-    """
     # Итоговый скор
     total_deobfuscation_score = 0
     # Цикл оптимизации
@@ -94,9 +91,6 @@ def optimizer(my_ast, verbose=True):
 
 
 def collect_optimizers():
-    """
-    Собирает все подклассы BaseTransformer.
-    """
     optimizers = set()
     temp = modules_optimizations.BaseTransformer.__subclasses__()
     new_temp = set()
@@ -116,9 +110,6 @@ def collect_optimizers():
 
 
 def decode_strings(ast_tree):
-    """
-    Декодирует все строки Base64 и применяет пользовательские лямбда-функции.
-    """
     lambda_func = find_lambda_func(ast_tree)
 
     for node in ast.walk(ast_tree):
@@ -142,9 +133,6 @@ def decode_strings(ast_tree):
 
 
 def find_lambda_func(ast_tree):
-    """
-    Находит и возвращает первую лямбда-функцию в AST, если она есть.
-    """
     for node in ast.walk(ast_tree):
         if isinstance(node, ast.Assign) and isinstance(node.value, ast.Lambda):
             try:
