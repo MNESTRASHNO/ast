@@ -2,15 +2,8 @@ import base64
 from app.modules.optimizations.base import BaseTransformer, ast
 
 
-class GoodEncodingLibs(BaseTransformer):
-    """
-    Трансформер для работы с Base64, replace и лямбда-функциями.
-    """
-
+class GoodEncodingLibs(BaseTransformer): #Трансформер для работы с Base64, replace и лямбда-функциями
     def leave_Call(self, node: ast.Call):
-        """
-        Обрабатывает вызовы exec и цепочки replace.
-        """
         # Проверяем вызов exec
         if isinstance(node.func, ast.Name) and node.func.id == "exec":
             if len(node.args) == 1 and isinstance(node.args[0], ast.Call):
@@ -47,10 +40,7 @@ class GoodEncodingLibs(BaseTransformer):
 
         return node
 
-    def handle_base64(self, node: ast.Call):
-        """
-        Распознаёт и обрабатывает вызовы base64.b64decode и подобных функций.
-        """
+    def handle_base64(self, node: ast.Call): #Распознаёт и обрабатывает вызовы base64.b64decode и подобных функций
         if not isinstance(node.func, (ast.Attribute, ast.Name)):
             return None
 
@@ -82,10 +72,7 @@ class GoodEncodingLibs(BaseTransformer):
 
         return None
 
-    def process_replace_chain(self, node: ast.Call):
-        """
-        Собирает и выполняет цепочку вызовов replace на строках за одну итерацию.
-        """
+    def process_replace_chain(self, node: ast.Call): #Собирает и выполняет цепочку вызовов replace на строках за одну итерацию
         if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute):
             return node
 
@@ -116,10 +103,7 @@ class GoodEncodingLibs(BaseTransformer):
 
         return node
 
-    def leave_Lambda(self, node: ast.Lambda):
-        """
-        Обрабатывает лямбда-функции, пытаясь вычислить их результат.
-        """
+    def leave_Lambda(self, node: ast.Lambda): #Обрабатывает лямбда-функции, пытаясь вычислить их результат
         # Обрабатываем тело лямбда-функции
         node.body = self.visit(node.body)
 
@@ -131,10 +115,8 @@ class GoodEncodingLibs(BaseTransformer):
 
         return node
 
+    #Возвращает скомпилированную лямбда-функцию по её имени
     def get_lambda_function(self, name):
-        """
-        Возвращает скомпилированную лямбда-функцию по её имени.
-        """
         for node in ast.walk(self.root_node):
             if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name) and node.targets[0].id == name:
                 if isinstance(node.value, ast.Lambda):
@@ -146,10 +128,7 @@ class GoodEncodingLibs(BaseTransformer):
                             print(f"Failed to compile lambda {name}: {e}")
         return None
 
-    def clean_redundant_replace(self, code):
-        """
-        Удаляет лишние вызовы replace из строки.
-        """
+    def clean_redundant_replace(self, code): #Удаляет лишние вызовы replace из строки
         try:
             lines = code.split('.replace(')
             cleaned_lines = []
